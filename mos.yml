@@ -1,0 +1,53 @@
+platform: esp32
+author: mongoose-os
+description: A Mongoose OS app skeleton
+version: 1.0
+
+libs_version: ${mos.version}
+modules_version: ${mos.version}
+mongoose_os_version: ${mos.version}
+
+sources:
+  - src
+
+filesystem:
+  - fs
+
+config_schema:
+  - ["device.id", "beninca-??????"]
+  - ["dns_sd.enable", true]
+  - ["dns_sd.host_name", "beninca-??????"]
+  - ["wifi.ap.ssid", "beninca-??????"]
+  - ["wifi.ap.pass", "OpenSesame!"]
+  - ["sntp.update_interval", 1500]
+
+  # add sta wifi config here or in fs/conf5.json
+
+  - ["debug.level", 2]
+  - ["debug.stdout_topic", "beninca-??????/debug/stdout"]
+  - ["debug.stderr_topic", "beninca-??????/debug/stderr"]
+  - ["debug.factory_reset_gpio", 23] # same as button below
+
+  - ["beninca", "o", {title: "Beninca CORE controller configuration"}]
+  - ["beninca.stop", "i", 26, {title: "STOP button output, NC"}]
+  - ["beninca.pp", "i", 18, {title: "P.P button output, NO"}]
+  - ["beninca.sca", "i", 16, {title: "SCA input from Beninca, high for open-contact"}]
+
+  - ["pinmux", "o", {title: "GPIO configuration"}]
+  - ["pinmux.led", "i", 2, {title: "WiFi indicator"}]
+  - ["pinmux.button", "i", 23, {title: "User button"}]
+
+  - ["rpc.ws.enable", false]
+
+
+libs:
+  - origin: https://github.com/mongoose-os-libs/wifi
+  - origin: https://github.com/mongoose-os-libs/dns-sd
+  - origin: https://github.com/mongoose-os-libs/rpc-service-config
+  - origin: https://github.com/mongoose-os-libs/rpc-service-fs
+  - origin: https://github.com/mongoose-os-libs/rpc-mqtt
+  - origin: https://github.com/mongoose-os-libs/mqtt
+  - origin: https://github.com/mongoose-os-libs/http-server
+  - origin: https://github.com/mongoose-os-libs/ota-http-server
+
+manifest_version: 2017-05-18
