@@ -31,7 +31,7 @@ config_schema:
   - ["beninca", "o", {title: "Beninca CORE controller configuration"}]
   - ["beninca.stop", "i", 26, {title: "STOP button output, NC"}]
   - ["beninca.pp", "i", 18, {title: "P.P button output, NO"}]
-  - ["beninca.sca", "i", 16, {title: "SCA input from Beninca, high for open-contact"}]
+  - ["beninca.sca", "i", 16, {title: "SCA input from Beninca"}]
 
   - ["pinmux", "o", {title: "GPIO configuration"}]
   - ["pinmux.led", "i", 2, {title: "WiFi indicator"}]

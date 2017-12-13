@@ -38,7 +38,7 @@ enum click_kind match_click(double click_time) {
 ---------------|-----------------|---------------------
   open         | closed          | HIGH
   closed       | open            | LOW
-  blinking     | moving          | TODO: freq/duty% ?
+  blinking     | moving          | .5Hz closing, 1Hz opening; 50% duty
 
 */
 
@@ -57,12 +57,11 @@ const char *beninca_dir_str(enum beninca_direction d) {
     }
 }
 
-// TODO: SCA state machine
-void _invoke_beninca_status_cb() {
+static void _invoke_beninca_status_cb() {
     if (_cb) _cb(&_status);
 }
 
-void _sca_timer_cb(void *arg) {
+static void _sca_timer_cb(void *arg) {
     _sca_moving_timer = MGOS_INVALID_TIMER_ID;
     _status.moving = false;
     _status.dir = _status.sca.is ? dir_close : dir_open;
@@ -70,37 +69,30 @@ void _sca_timer_cb(void *arg) {
     _invoke_beninca_status_cb();
 }
 
-struct sca_evt {
-    double time;
-    bool state;
-};
-
-void _on_sca_change(void *arg) {
-    struct sca_evt e = * (struct sca_evt *) arg;
-    free(arg);
+static void _on_sca_change(void *arg) {
+    bool new_state = (bool)arg;
 
     static unsigned total_clicks = 0;
     static unsigned click_buckets[_click_kind_count] = { 0 };
 
-    if (_status.sca.is == e.state) {
-        LOG(LL_DEBUG, ("sca status is the same ol %d", _status.sca.is));
+    if (_status.sca.is == new_state) {
+        LOG(LL_WARN, ("repeated sca %d", _status.sca.is));
         if (_status.dir == dir_unknown) {
             _status.dir = _status.sca.is ? dir_close : dir_open;
         }
         return;
     }
 
-    double delta = mg_time() - mgos_uptime();
-    double event_time = e.time + delta;
+    double event_time = mg_time();
     _status.sca.was = _status.sca.is;
     _status.sca.lasted = event_time - _status.sca.since;
-    _status.sca.is = e.state;
+    _status.sca.is = new_state;
     _status.sca.since = event_time;
 
     if (_sca_moving_timer != MGOS_INVALID_TIMER_ID) {
         mgos_clear_timer(_sca_moving_timer);
     }
-    _sca_moving_timer = mgos_set_timer(BENINCA_BLINKING_TIMEOUT, 0, 
+    _sca_moving_timer = mgos_set_timer(BENINCA_BLINKING_TIMEOUT, 0,
                                        _sca_timer_cb, NULL);
     enum beninca_direction predicted_dir;
     if (!_status.moving) {
@@ -152,7 +144,7 @@ void _on_sca_change(void *arg) {
     _invoke_beninca_status_cb();
 }
 
-IRAM void _status_timer_cb(void *arg) {
+IRAM static void _status_timer_cb(void *arg) {
 
     static int8_t last_state = -1;
     static uint8_t samples = 0xaa;
@@ -171,12 +163,8 @@ IRAM void _status_timer_cb(void *arg) {
     }
 
     if (last_state != new_state) {
-        struct sca_evt *e = malloc(sizeof(struct sca_evt));
-        if (!e) return;
-        e->state = new_state;
-        e->time = mgos_uptime();
         last_state = new_state;
-        mgos_invoke_cb(_on_sca_change, (void *)e, true);
+        mgos_invoke_cb(_on_sca_change, (void *)new_state, true);
     }
 
     (void) arg;
@@ -284,4 +272,3 @@ void beninca_deinit() {
         _sca_hw_timer = MGOS_INVALID_TIMER_ID;
     }
 }
- 
