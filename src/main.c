@@ -184,8 +184,6 @@ enum mgos_app_init_result mgos_app_init(void) {
     mgos_mqtt_sub(_topic("beninca/command"), _on_command, NULL);
     mgos_mqtt_sub(_topic("beninca/lock/command"), _on_lock, NULL);
 
-
-
     // Stop timer on update
     mgos_upd_set_event_cb(update_cb, NULL);
     return MGOS_APP_INIT_SUCCESS;

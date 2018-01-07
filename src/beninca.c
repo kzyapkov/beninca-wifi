@@ -17,7 +17,7 @@ enum click_kind {
     click_wtf = 0,
     click_opening,
     click_closing,
-    click_stopped,
+    click_moving,
     _click_kind_count,
 };
 
@@ -29,7 +29,7 @@ inline bool _within(double val, double nom, double tolerance) {
 enum click_kind match_click(double click_time) {
     if (_within(click_time, BENINCA_OPENING_HALF_T, .1)) return click_opening;
     if (_within(click_time, BENINCA_CLOSING_HALF_T, .1)) return click_closing;
-    if (click_time > (BENINCA_BLINKING_TIMEOUT/1000.0)) return click_stopped;
+    if (click_time > (BENINCA_BLINKING_TIMEOUT/1000.0)) return click_moving;
     return click_wtf;
 }
 
@@ -236,10 +236,14 @@ void beninca_pp() {
     _status.control.pp_strobe = 0;
 }
 
-void time_change_cb(void *arg, double delta) {
-    _status.sca.since += delta;
+static void time_change_cb(int ev, void *evd, void *arg) {
+    struct mgos_time_changed_arg *ev_data = (struct mgos_time_changed_arg *) evd;
+    LOG(LL_INFO, ("Time has changed by %.4f", ev_data->delta));
 
-    (void) arg;
+    _status.sca.since += ev_data->delta;
+
+   (void) ev;
+   (void) arg;
 }
 
 void beninca_init(beninca_status_cb_t cb) {
@@ -252,7 +256,7 @@ void beninca_init(beninca_status_cb_t cb) {
     _ctl.stop.pin = mgos_sys_config_get_beninca_stop();
     _ctl.pp.pin = mgos_sys_config_get_beninca_pp();
 
-    mgos_sntp_add_time_change_cb(time_change_cb, NULL);
+    mgos_event_add_handler(MGOS_EVENT_TIME_CHANGED, time_change_cb, NULL);
 
     mgos_gpio_write(mgos_sys_config_get_beninca_stop(), false);
     mgos_gpio_set_mode(mgos_sys_config_get_beninca_stop(), MGOS_GPIO_MODE_OUTPUT);
