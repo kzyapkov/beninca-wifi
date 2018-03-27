@@ -9,15 +9,15 @@ control panel installed in a number of sliding and swinging gate controllers.
 
 ## Hardware
 
-The brains is an ESP32 in an [ESP32 MiniKIT](http://forum.mhetlive.com/topic/8/new-mh-et-live-minikit-for-esp32).
+The brain is an ESP32 in an [ESP32 MiniKIT](http://forum.mhetlive.com/topic/8/new-mh-et-live-minikit-for-esp32).
 
 Power comes from the CORE board itself, supply is rated at 24VAC, up to 200mA.
 This gets rectified and stepped down twice:
 
- * Amtec AMSRW-78Z, quite pricy but tiny and to specs steps down to 12V which are used for the relays
+ * Amtec AMSRW-78Z, quite pricy but tiny and to specs, steps down to 12V which are used for the relays
  * A cheap ebay-sourced DSN-MINI-360 board steps it down further to 3.3V which feed the ESP32.
 
-This power schema is flawed -- the on-board LDO responsible for powering the
+This power scheme is flawed -- the on-board LDO responsible for powering the
 devkit through USB gets fried if you feed it 3.3V. Don't replicate that.
 Feed the devkit with 5V instead, or use a bare ESP32 module.
 
@@ -26,15 +26,10 @@ senses the `SCA` from CORE to know the position of the gate.
 
 ## Interface
 
-The aim is:
+JSON messages are exchanged over MQTT with a homeassistant component which implements a `cover` device.
 
- * to have a toggle button which blocks the motion of the door
- * to implement OPEN and CLOSE commands
- * to have adequate state feedback
+TODO: add homeassistant code
 
-### Home Assistant
-
-Maybe implement some extra stuff to make it integrate nicely with Home Assistant
 
 ## License
 
