@@ -9,13 +9,16 @@ control panel installed in a number of sliding and swinging gate controllers.
 
 ## Hardware
 
-The brain is an ESP32 in an [ESP32 MiniKIT](http://forum.mhetlive.com/topic/8/new-mh-et-live-minikit-for-esp32).
+The brain is an ESP32 in an
+[ESP32 MiniKIT](http://forum.mhetlive.com/topic/8/new-mh-et-live-minikit-for-esp32).
 
 Power comes from the CORE board itself, supply is rated at 24VAC, up to 200mA.
 This gets rectified and stepped down twice:
 
- * Amtec AMSRW-78Z, quite pricy but tiny and to specs, steps down to 12V which are used for the relays
- * A cheap ebay-sourced DSN-MINI-360 board steps it down further to 3.3V which feed the ESP32.
+ * Amtec AMSRW-78Z, quite pricy but tiny and to specs, steps down to 12V which
+   are used for the relays
+ * A cheap ebay-sourced DSN-MINI-360 board steps it down further to 3.3V which
+   feed the ESP32.
 
 This power scheme is flawed -- the on-board LDO responsible for powering the
 devkit through USB gets fried if you feed it 3.3V. Don't replicate that.
@@ -26,9 +29,18 @@ senses the `SCA` from CORE to know the position of the gate.
 
 ## Interface
 
-JSON messages are exchanged over MQTT with a homeassistant component which implements a `cover` device.
+JSON messages are exchanged over MQTT and allow for control and monitoring.
+`beninca.py` contains a custom home-assistant component which provides a
+`cover` device. Place it in `<config dir>/custom_components/cover/` and add
+some configuration:
 
-TODO: add homeassistant code
+```
+cover:
+  - platform: beninca
+    name: front_gate
+    device_id: beninca-??????
+    device_class: garage
+```
 
 
 ## License
