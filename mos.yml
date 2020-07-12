@@ -39,6 +39,10 @@ config_schema:
 
   - ["rpc.ws.enable", false]
 
+build_vars:
+  ESP_IDF_SDKCONFIG_OPTS: >
+      ${build_vars.ESP_IDF_SDKCONFIG_OPTS}
+      CONFIG_FREERTOS_UNICORE=y
 
 libs:
   - origin: https://github.com/mongoose-os-libs/wifi

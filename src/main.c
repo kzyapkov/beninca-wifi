@@ -1,5 +1,6 @@
 #include "mgos.h"
 #include "mgos_mqtt.h"
+#include "mgos_ota.h"
 #include "beninca.h"
 
 
@@ -125,28 +126,6 @@ void _beninca_status_cb(const struct beninca_status *status) {
     publish_status();
 }
 
-bool update_cb(enum mgos_upd_event ev, const void *ev_arg, void *cb_arg) {
-    switch (ev) {
-        case MGOS_UPD_EV_INIT: {
-            return true;
-        }
-        case MGOS_UPD_EV_BEGIN: {
-            const struct mgos_upd_info *info = (const struct mgos_upd_info *) ev_arg;
-            LOG(LL_INFO, ("BEGIN %.*s", (int) info->build_id.len, info->build_id.ptr));
-            return true;
-        }
-        case MGOS_UPD_EV_END: {
-            int result = *((int *) ev_arg);
-            LOG(LL_INFO, ("END, result %d", result));
-            if (result) beninca_deinit();
-            break;
-        }
-        default:
-            break;
-    }
-    (void) cb_arg;
-    return false;
-}
 void _mqtt_net_ev(struct mg_connection *nc, int ev,
                     void *ev_data MG_UD_ARG(void *user_data)) {
 
@@ -185,6 +164,8 @@ enum mgos_app_init_result mgos_app_init(void) {
     mgos_mqtt_sub(_topic("beninca/lock/command"), _on_lock, NULL);
 
     // Stop timer on update
-    mgos_upd_set_event_cb(update_cb, NULL);
+    // mgos_event_add_handler(MGOS_EVENT_OTA_BEGIN, update_cb, NULL);
+    // mgos_upd_set_event_cb(update_cb, NULL);
+
     return MGOS_APP_INIT_SUCCESS;
 }

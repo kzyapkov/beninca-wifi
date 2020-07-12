@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 all:
-	mos build --local --verbose --repo ./mongoose-os
+	mos build --local --verbose
 
 clean:
 	rm -rf build
